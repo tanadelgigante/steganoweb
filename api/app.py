@@ -11,7 +11,16 @@ sys.path.append(os.path.dirname(os.getenv('MAIN_PY_PATH', '/app/main.py')))
 from main import encode, decode
 
 app = Flask(__name__)
-CORS(app)
+# Configure CORS to accept requests from both external and internal addresses
+CORS(app, resources={
+    r"/*": {
+        "origins": [
+            "http://web-app:3000"  # Usa il nome del container
+        ],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type"]
+    }
+})
 
 @app.route('/encode', methods=['POST'])
 def encode_image():

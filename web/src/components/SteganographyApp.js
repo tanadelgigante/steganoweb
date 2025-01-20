@@ -50,7 +50,7 @@ const SteganographyApp = () => {
       reader.onloadend = async () => {
         const base64Image = reader.result;
         const endpoint = isEncoding ? '/encode' : '/decode';
-        const response = await fetch(`http://127.0.0.1:5000${endpoint}`, {
+        const response = await fetch(`http://api:5000${endpoint}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -172,4 +172,4 @@ const SteganographyApp = () => {
   );
 };
 
-export default SteganographyApp;
+export default Steganography
