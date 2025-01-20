@@ -15,6 +15,6 @@ WORKDIR /app
 RUN wget https://github.com/chtholine/Steganograpp/raw/refs/heads/main/main.py
 
 # Install Python dependencies
-RUN pip3 install Pillow PyQt6
+RUN pip3 install Pillow==9.5.0 PyQt6==6.4.2
 
 CMD ["python3", "main.py"]
