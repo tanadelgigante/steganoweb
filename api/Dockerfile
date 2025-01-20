@@ -9,14 +9,14 @@ RUN apt-get update && apt-get install -y \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first to leverage Docker cache
+# Download main.py first
+RUN wget -O main.py https://github.com/chtholine/Steganograpp/raw/refs/heads/main/main.py
+
+# Copy requirements and install dependencies
 COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 
-# Download the main.py file BEFORE copying the rest of the app
-RUN wget -O /app/main.py https://github.com/chtholine/Steganograpp/raw/refs/heads/main/main.py
-
-# Copy application code last to ensure main.py exists first
+# Copy application code last
 COPY . .
 
 EXPOSE 5000
