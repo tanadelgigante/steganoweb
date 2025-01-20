@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Download the original Python script
-RUN wget https://github.com/chtholine/Steganograpp/raw/refs/heads/main/main.py
+RUN wget -O /app/main.py https://github.com/chtholine/Steganograpp/raw/refs/heads/main/main.py
 
 # Install Python dependencies
 RUN pip3 install Pillow==9.5.0 PyQt6==6.4.2

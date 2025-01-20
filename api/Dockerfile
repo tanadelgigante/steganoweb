@@ -12,6 +12,9 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 
+# Copy the main.py file from the desktop app directory
+COPY ../desktop/main.py .
+
 # Copy application code
 COPY . .
 

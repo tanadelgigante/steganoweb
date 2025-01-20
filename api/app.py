@@ -8,6 +8,8 @@ from pathlib import Path
 
 # Add the desktop app directory to Python path to reuse steganography functions
 sys.path.append(str(Path(__file__).parent.parent / 'desktop'))
+
+# Import encode and decode functions from main.py
 from main import encode, decode
 
 app = Flask(__name__)
