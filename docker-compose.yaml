@@ -1,25 +1,10 @@
 services:
-  # Python desktop application service
-  desktop-app:
-    build: 
-      context: ./desktop
-      dockerfile: Dockerfile
-    volumes:
-      - ./desktop:/app
-      # X11 socket for GUI applications
-      - /tmp/.X11-unix:/tmp/.X11-unix
-    environment:
-      - DISPLAY=${DISPLAY}
-      - QT_X11_NO_MITSHM=1
-    network_mode: "host"  # Needed for GUI applications
-
-  # Web interface service
   web-app:
     build:
       context: ./web
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "60:3000"
     volumes:
       - ./web:/app
       - /app/node_modules
@@ -28,16 +13,15 @@ services:
     depends_on:
       - api
 
-  # Backend API service
   api:
     build:
       context: ./api
       dockerfile: Dockerfile
     ports:
-      - "5000:5000"
+      - "61:5000"
     volumes:
       - ./api:/app
-      - ./desktop/main.py:/app/main.py  # Mount main.py directly
+      - ./main.py:/app/main.py  # Mount main.py directly
     environment:
       - FLASK_ENV=development
       - FLASK_APP=app.py
