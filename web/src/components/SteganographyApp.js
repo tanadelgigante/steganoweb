@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Upload } from 'lucide-react';  // Add Upload to the import
 import { Alert, AlertDescription } from '../components/ui/alert';
 
 const SteganographyApp = () => {
