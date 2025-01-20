@@ -3,15 +3,12 @@ from flask_cors import CORS
 from PIL import Image
 import io
 import base64
+import os
 
-# Direct import from main.py in the same directory
-try:
-    from main import encode, decode
-except ImportError:
-    import sys
-    import os
-    sys.path.append(os.path.dirname("/app"))
-    from main import encode, decode
+# Import encode and decode functions using the environment variable path
+import sys
+sys.path.append(os.path.dirname(os.getenv('MAIN_PY_PATH', '/app/main.py')))
+from main import encode, decode
 
 app = Flask(__name__)
 CORS(app)
