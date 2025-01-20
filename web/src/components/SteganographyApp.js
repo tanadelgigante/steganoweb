@@ -1,11 +1,10 @@
-// Using the previously created React component
 import React, { useState, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { AlertCircle, Upload } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Textarea } from '../components/ui/textarea';
+import { AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '../components/ui/alert';
 
 const SteganographyApp = () => {
   // State management for file handling and UI
