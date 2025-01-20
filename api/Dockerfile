@@ -3,14 +3,14 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+# Download main.py first
+RUN wget -O main.py https://github.com/chtholine/Steganograpp/raw/refs/heads/main/main.py
+
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     python3-pip \
     wget \
     && rm -rf /var/lib/apt/lists/*
-
-# Download main.py first
-RUN wget -O main.py https://github.com/chtholine/Steganograpp/raw/refs/heads/main/main.py
 
 # Copy requirements and install dependencies
 COPY requirements.txt .

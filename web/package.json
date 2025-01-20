@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "private": true,
     "dependencies": {
-      "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+      "@babel/plugin-transform-private-property-in-object": "^7.21.11",
       "@radix-ui/react-alert-dialog": "^1.1.4",
       "@radix-ui/react-slot": "^1.1.1",
       "class-variance-authority": "^0.7.1",

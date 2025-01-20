@@ -5,7 +5,13 @@ import io
 import base64
 
 # Direct import from main.py in the same directory
-from main import encode, decode
+try:
+    from main import encode, decode
+except ImportError:
+    import sys
+    import os
+    sys.path.append(os.path.dirname("/app"))
+    from main import encode, decode
 
 app = Flask(__name__)
 CORS(app)
