@@ -3,10 +3,8 @@ from flask_cors import CORS
 from PIL import Image
 import io
 import base64
-import sys
-from pathlib import Path
 
-# Import encode and decode functions from main.py
+# Direct import from main.py in the same directory
 from main import encode, decode
 
 app = Flask(__name__)

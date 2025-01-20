@@ -13,12 +13,12 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 
-# Download the main.py file from the remote repository
+# Download the main.py file BEFORE copying the rest of the app
 RUN wget -O /app/main.py https://github.com/chtholine/Steganograpp/raw/refs/heads/main/main.py
 
-# Copy application code
+# Copy application code last to ensure main.py exists first
 COPY . .
 
 EXPOSE 5000
 
-CMD ["flask", "run", "--host=0.0.0.0"]
+CMD ["python3", "-m", "flask", "run", "--host=0.0.0.0"]
