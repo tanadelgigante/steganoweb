@@ -35,7 +35,7 @@ def encode_image():
     try:
         data = request.json
         logger.debug(f"Message to encode: '{data.get('message')}'")
-        logger.debug(f"Message length: {len(data.get('message', '')})")
+        logger.debug(f"Message length: {len(data.get('message', ''))}")
         logger.debug(f"Message bytes: {[ord(c) for c in data.get('message', '')]}")
         
         if 'image' not in data or 'message' not in data:
