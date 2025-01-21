@@ -8,10 +8,12 @@ services:
     volumes:
       - ./web:/app
       - /app/node_modules
+      - ${HOSTS_CONFIG:-./config/hosts.conf}:/etc/hosts.extra:ro,optional
     environment:
       - NODE_ENV=development
     depends_on:
       - api
+    privileged: true  # Add this line
 
   api:
     build:
@@ -22,7 +24,9 @@ services:
     volumes:
       - ./api:/app
       - ./main.py:/app/main.py  # Mount main.py directly
+      - ${HOSTS_CONFIG:-./config/hosts.conf}:/etc/hosts.extra:ro,optional
     environment:
       - FLASK_ENV=development
       - FLASK_APP=app.py
       - MAIN_PY_PATH=/app/main.py
+    privileged: true  # Add this line

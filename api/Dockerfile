@@ -17,6 +17,10 @@ RUN pip3 install -r requirements.txt
 # Copy application code
 COPY . .
 
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 EXPOSE 5000
 
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["python3", "-m", "flask", "run", "--host=0.0.0.0"]
