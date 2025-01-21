@@ -15,7 +15,8 @@ app = Flask(__name__)
 CORS(app, resources={
     r"/*": {
         "origins": [
-            "http://web-app:3000"  # Usa il nome del container
+            "http://web-app:3000",  # Usa il nome del container
+            "http://192.168.188.120:60"  # Indirizzo IP
         ],
         "methods": ["GET", "POST", "OPTIONS"],
         "allow_headers": ["Content-Type"]

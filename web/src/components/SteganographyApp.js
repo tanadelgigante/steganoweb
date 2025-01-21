@@ -50,7 +50,7 @@ const SteganographyApp = () => {
       reader.onloadend = async () => {
         const base64Image = reader.result;
         const endpoint = isEncoding ? '/encode' : '/decode';
-        const response = await fetch(`http://api:5000${endpoint}`, {
+        const response = await fetch(`http://192.168.188.120:61${endpoint}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
