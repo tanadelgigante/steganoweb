@@ -65,7 +65,7 @@ const SteganographyApp = () => {
         };
         console.log('Request body:', JSON.stringify(requestBody).substring(0, 100) + '...');
 
-        const response = await fetch(`http://api:5000${endpoint}`, {
+        const response = await fetch(`http://192.168.188.120:61${endpoint}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
