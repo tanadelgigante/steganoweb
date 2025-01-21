@@ -13,6 +13,7 @@ const SteganographyApp = () => {
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState('');
   const [isEncoding, setIsEncoding] = useState(true);
+  const [processedImage, setProcessedImage] = useState(null);
   const fileInputRef = useRef(null);
 
   // Handle file selection
@@ -83,6 +84,7 @@ const SteganographyApp = () => {
         }
 
         if (isEncoding) {
+          setProcessedImage(data.image);
           setPreviewUrl(data.image);
           setStatus('Message encoded successfully!');
         } else {
@@ -95,6 +97,17 @@ const SteganographyApp = () => {
     } catch (error) {
       console.error('Operation failed:', error);
       setStatus(`Error: ${error.message}`);
+    }
+  };
+
+  const handleDownload = () => {
+    if (processedImage) {
+      const link = document.createElement('a');
+      link.href = processedImage;
+      link.download = `stegano_${isEncoding ? 'encoded' : 'decoded'}_image.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   };
 
@@ -173,6 +186,15 @@ const SteganographyApp = () => {
           >
             {isEncoding ? 'Encode Message' : 'Decode Message'}
           </Button>
+
+          {processedImage && isEncoding && (
+            <Button 
+              onClick={handleDownload}
+              className="w-full bg-green-600 hover:bg-green-700"
+            >
+              Download Encoded Image
+            </Button>
+          )}
 
           {/* Status Messages */}
           {status && (
