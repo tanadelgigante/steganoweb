@@ -35,6 +35,10 @@ const SteganographyApp = () => {
 
   // Handle encode/decode operations
   const handleOperation = async () => {
+    console.log('Starting operation:', isEncoding ? 'encode' : 'decode');
+    console.log('Input image:', inputImage);
+    console.log('Message:', message);
+
     if (!inputImage) {
       setStatus('Please select an image first');
       return;
@@ -49,19 +53,29 @@ const SteganographyApp = () => {
       const reader = new FileReader();
       reader.onloadend = async () => {
         const base64Image = reader.result;
+        console.log('Base64 image length:', base64Image.length);
+        console.log('First 100 chars of base64:', base64Image.substring(0, 100));
+
         const endpoint = isEncoding ? '/encode' : '/decode';
+        console.log('Sending request to:', endpoint);
+
+        const requestBody = {
+          image: base64Image,
+          message: isEncoding ? message : undefined,
+        };
+        console.log('Request body:', JSON.stringify(requestBody).substring(0, 100) + '...');
+
         const response = await fetch(`http://192.168.188.120:61${endpoint}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            image: base64Image,
-            message: isEncoding ? message : undefined,
-          }),
+          body: JSON.stringify(requestBody),
         });
 
+        console.log('Response status:', response.status);
         const data = await response.json();
+        console.log('Response data:', data);
         
         if (data.error) {
           setStatus(`Error: ${data.error}`);
@@ -79,6 +93,7 @@ const SteganographyApp = () => {
       
       reader.readAsDataURL(inputImage);
     } catch (error) {
+      console.error('Operation failed:', error);
       setStatus(`Error: ${error.message}`);
     }
   };

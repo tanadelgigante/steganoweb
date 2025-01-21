@@ -4,6 +4,11 @@ from PIL import Image
 import io
 import base64
 import os
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 # Import encode and decode functions using the environment variable path
 import sys
@@ -25,33 +30,41 @@ CORS(app, resources={
 
 @app.route('/encode', methods=['POST'])
 def encode_image():
-    """
-    Endpoint for encoding a message into an image.
-    Expects: 
-    - image: base64 encoded image
-    - message: text to encode
-    Returns:
-    - encoded image in base64 format
-    """
+    logger.debug("Encode endpoint called")
     try:
         data = request.json
-        image_data = base64.b64decode(data['image'].split(',')[1])
-        message = data['message']
+        logger.debug(f"Received data keys: {data.keys()}")
+        
+        if 'image' not in data or 'message' not in data:
+            logger.error("Missing required fields")
+            return jsonify({'error': 'Missing image or message'}), 400
 
-        # Create temporary files for processing
+        logger.debug(f"Message length: {len(data['message'])}")
+        logger.debug(f"Base64 image length: {len(data['image'])}")
+        logger.debug(f"Image data prefix: {data['image'][:50]}...")
+
+        image_data = base64.b64decode(data['image'].split(',')[1])
+        logger.debug(f"Decoded image data length: {len(image_data)}")
+
+        message = data['message']
         input_image = io.BytesIO(image_data)
         output_image = io.BytesIO()
 
-        # Process the image
+        logger.debug("Opening image with PIL")
         img = Image.open(input_image)
-        encode(img, output_image, message)
+        logger.debug(f"Image format: {img.format}, size: {img.size}, mode: {img.mode}")
 
-        # Convert back to base64
+        logger.debug("Calling encode function")
+        encode(img, output_image, message)
+        logger.debug("Encode function completed")
+
         output_image.seek(0)
         encoded_image = base64.b64encode(output_image.getvalue()).decode()
+        logger.debug(f"Encoded image length: {len(encoded_image)}")
 
         return jsonify({'image': f'data:image/png;base64,{encoded_image}'})
     except Exception as e:
+        logger.exception("Error in encode_image:")
         return jsonify({'error': str(e)}), 400
 
 @app.route('/decode', methods=['POST'])
