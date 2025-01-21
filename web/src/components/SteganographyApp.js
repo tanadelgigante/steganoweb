@@ -14,6 +14,7 @@ const SteganographyApp = () => {
   const [status, setStatus] = useState('');
   const [isEncoding, setIsEncoding] = useState(true);
   const [processedImage, setProcessedImage] = useState(null);
+  const [originalFormat, setOriginalFormat] = useState(null);
   const fileInputRef = useRef(null);
 
   // Handle file selection
@@ -24,6 +25,9 @@ const SteganographyApp = () => {
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
       setStatus('');
+      // Extract format from MIME type (e.g., 'image/jpeg' -> 'jpg')
+      const format = file.type.split('/')[1].replace('jpeg', 'jpg');
+      setOriginalFormat(format);
     } else {
       setStatus('Please select a valid image file');
     }
@@ -104,7 +108,7 @@ const SteganographyApp = () => {
     if (processedImage) {
       const link = document.createElement('a');
       link.href = processedImage;
-      link.download = `stegano_${isEncoding ? 'encoded' : 'decoded'}_image.png`;
+      link.download = `stegano_${isEncoding ? 'encoded' : 'decoded'}_image.${originalFormat || 'png'}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

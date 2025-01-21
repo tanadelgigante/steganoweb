@@ -40,39 +40,37 @@ def encode_image():
             logger.error("Missing required fields")
             return jsonify({'error': 'Missing image or message'}), 400
 
-        # Extract image format and data
+        # Extract image format from the data URL
         image_data_parts = data['image'].split(',')[0]
-        image_format = image_data_parts.split(';')[0].split('/')[1]
+        image_format = image_data_parts.split(';')[0].split('/')[1].replace('jpeg', 'jpg')
         logger.debug(f"Detected image format: {image_format}")
         image_data = base64.b64decode(data['image'].split(',')[1])
         message = data['message']
 
         # Create temporary directory
         with tempfile.TemporaryDirectory() as temp_dir:
-            # Create temporary file paths
-            temp_input = os.path.join(temp_dir, f"input.{image_format}")
-            temp_output = os.path.join(temp_dir, f"output.{image_format}")
+            # Use the original format for both input and output
+            input_path = os.path.join(temp_dir, f'input.{image_format}')
+            output_path = os.path.join(temp_dir, f'output.{image_format}')
             
-            logger.debug(f"Saving input image to {temp_input}")
+            logger.debug(f"Saving input image to {input_path}")
             # Save input image to temporary file
-            with open(temp_input, 'wb') as f:
+            with open(input_path, 'wb') as f:
                 f.write(image_data)
 
             logger.debug("Calling encode function")
             # Call encode with file paths
-            encode(temp_input, temp_output, message)
+            encode(input_path, output_path, message)
             logger.debug("Encoding completed")
 
-            # Read output image
-            logger.debug(f"Reading output from {temp_output}")
-            with open(temp_output, 'rb') as f:
-                output_data = f.read()
-
-        # Convert to base64 and return
-        encoded_image = base64.b64encode(output_data).decode()
-        return jsonify({
-            'image': f'data:image/{image_format};base64,{encoded_image}'
-        })
+            # Read output image and preserve the original format in the response
+            logger.debug(f"Reading output from {output_path}")
+            with open(output_path, 'rb') as f:
+                encoded_image = base64.b64encode(f.read()).decode()
+            
+            return jsonify({
+                'image': f'data:image/{image_format};base64,{encoded_image}'
+            })
 
     except Exception as e:
         logger.exception("Error in encode_image:")
