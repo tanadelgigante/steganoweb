@@ -31,10 +31,12 @@ CORS(app, resources={
 
 @app.route('/encode', methods=['POST'])
 def encode_image():
-    logger.debug("Encode endpoint called")
+    logger.debug("=== ENCODE ENDPOINT START ===")
     try:
         data = request.json
-        logger.debug(f"Received data keys: {data.keys()}")
+        logger.debug(f"Message to encode: '{data.get('message')}'")
+        logger.debug(f"Message length: {len(data.get('message', '')})")
+        logger.debug(f"Message bytes: {[ord(c) for c in data.get('message', '')]}")
         
         if 'image' not in data or 'message' not in data:
             logger.error("Missing required fields")
@@ -58,10 +60,16 @@ def encode_image():
             with open(input_path, 'wb') as f:
                 f.write(image_data)
 
-            logger.debug("Calling encode function")
+            logger.debug(f"Calling encode with message: '{data['message']}'")
             # Call encode with file paths
             encode(input_path, output_path, message)
-            logger.debug("Encoding completed")
+            logger.debug("Encode completed, now trying to decode to verify")
+            
+            # Verify the encoded message
+            decoded = decode(output_path)
+            logger.debug(f"Verification decode result: '{decoded}'")
+            if decoded != data['message']:
+                logger.warning(f"Encode verification failed! Original: '{data['message']}', Decoded: '{decoded}'")
 
             # Read output image and preserve the original format in the response
             logger.debug(f"Reading output from {output_path}")
@@ -75,10 +83,12 @@ def encode_image():
     except Exception as e:
         logger.exception("Error in encode_image:")
         return jsonify({'error': str(e)}), 400
+    finally:
+        logger.debug("=== ENCODE ENDPOINT END ===")
 
 @app.route('/decode', methods=['POST'])
 def decode_image():
-    logger.debug("Decode endpoint called")
+    logger.debug("=== DECODE ENDPOINT START ===")
     try:
         data = request.json
         logger.debug(f"Received data keys: {data.keys()}")
@@ -104,16 +114,20 @@ def decode_image():
             with open(temp_input, 'wb') as f:
                 f.write(image_data)
 
-            logger.debug("Calling decode function")
+            logger.debug("Starting decode operation")
             # Call decode with file path
             message = decode(temp_input)
-            logger.debug(f"Decoded message: {message}")
+            logger.debug(f"Decoded message: '{message}'")
+            logger.debug(f"Decoded message length: {len(message)}")
+            logger.debug(f"Decoded message bytes: {[ord(c) for c in message]}")
 
             return jsonify({'message': message})
 
     except Exception as e:
         logger.exception("Error in decode_image:")
         return jsonify({'error': str(e)}), 400
+    finally:
+        logger.debug("=== DECODE ENDPOINT END ===")
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
