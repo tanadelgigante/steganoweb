@@ -34,51 +34,53 @@ def encode_image():
     logger.debug("=== ENCODE ENDPOINT START ===")
     try:
         data = request.json
-        logger.debug(f"Message to encode: '{data.get('message')}'")
-        logger.debug(f"Message length: {len(data.get('message', ''))}")
-        logger.debug(f"Message bytes: {[ord(c) for c in data.get('message', '')]}")
-        
-        if 'image' not in data or 'message' not in data:
-            logger.error("Missing required fields")
-            return jsonify({'error': 'Missing image or message'}), 400
+        message = data.get('message', '')
+        logger.debug(f"Message to encode: '{message}'")
+        logger.debug(f"Message length: {len(message)}")
+        logger.debug(f"Message bytes: {[ord(c) for c in message]}")
+        logger.debug(f"Message binary: {' '.join(format(ord(c), '08b') for c in message)}")
 
-        # Extract image format from the data URL
+        # Extract image format and normalize it
         image_data_parts = data['image'].split(',')[0]
-        image_format = image_data_parts.split(';')[0].split('/')[1].replace('jpeg', 'jpg')
+        image_format = image_data_parts.split(';')[0].split('/')[1].lower()
+        if image_format == 'jpeg':
+            image_format = 'jpg'
         logger.debug(f"Detected image format: {image_format}")
-        image_data = base64.b64decode(data['image'].split(',')[1])
-        message = data['message']
 
-        # Create temporary directory
+        image_data = base64.b64decode(data['image'].split(',')[1])
+        
         with tempfile.TemporaryDirectory() as temp_dir:
-            # Use the original format for both input and output
             input_path = os.path.join(temp_dir, f'input.{image_format}')
-            output_path = os.path.join(temp_dir, f'output.{image_format}')
+            output_path = os.path.join(temp_dir, f'output.png')  # Always save as PNG to preserve data
             
             logger.debug(f"Saving input image to {input_path}")
-            # Save input image to temporary file
             with open(input_path, 'wb') as f:
                 f.write(image_data)
 
-            logger.debug(f"Calling encode with message: '{data['message']}'")
-            # Call encode with file paths
-            encode(input_path, output_path, message)
-            logger.debug("Encode completed, now trying to decode to verify")
+            try:
+                logger.debug(f"Calling encode with message: '{message}'")
+                encode(input_path, output_path, message)
+                logger.debug("Encode completed, now trying to decode to verify")
+                
+                # Verify encoding
+                decoded = decode(output_path)
+                logger.debug(f"Verification decode result: '{decoded}'")
+                if decoded != message:
+                    logger.warning(f"Encode verification failed! Original: '{message}', Decoded: '{decoded}'")
+                    logger.debug(f"Original binary: {' '.join(format(ord(c), '08b') for c in message)}")
+                    logger.debug(f"Decoded binary: {' '.join(format(ord(c), '08b') for c in decoded)}")
             
-            # Verify the encoded message
-            decoded = decode(output_path)
-            logger.debug(f"Verification decode result: '{decoded}'")
-            if decoded != data['message']:
-                logger.warning(f"Encode verification failed! Original: '{data['message']}', Decoded: '{decoded}'")
+                # Read output image
+                logger.debug(f"Reading output from {output_path}")
+                with open(output_path, 'rb') as f:
+                    output_data = f.read()
+                    
+                encoded_image = base64.b64encode(output_data).decode()
+                return jsonify({'image': f'data:image/png;base64,{encoded_image}'})
 
-            # Read output image and preserve the original format in the response
-            logger.debug(f"Reading output from {output_path}")
-            with open(output_path, 'rb') as f:
-                encoded_image = base64.b64encode(f.read()).decode()
-            
-            return jsonify({
-                'image': f'data:image/{image_format};base64,{encoded_image}'
-            })
+            except Exception as e:
+                logger.error(f"Processing error: {str(e)}")
+                raise
 
     except Exception as e:
         logger.exception("Error in encode_image:")
@@ -93,34 +95,29 @@ def decode_image():
         data = request.json
         logger.debug(f"Received data keys: {data.keys()}")
         
-        if 'image' not in data:
-            logger.error("Missing image")
-            return jsonify({'error': 'Missing image'}), 400
-
-        # Extract image format and data
+        # Extract image format and normalize it
         image_data_parts = data['image'].split(',')[0]
-        image_format = image_data_parts.split(';')[0].split('/')[1]
+        image_format = image_data_parts.split(';')[0].split('/')[1].lower()
+        if image_format == 'jpeg':
+            image_format = 'jpg'
         logger.debug(f"Detected image format: {image_format}")
         
         image_data = base64.b64decode(data['image'].split(',')[1])
-
-        # Create temporary directory
+        
         with tempfile.TemporaryDirectory() as temp_dir:
-            # Create temporary file path
-            temp_input = os.path.join(temp_dir, f"input.{image_format}")
+            input_path = os.path.join(temp_dir, f'input.{image_format}')
             
-            logger.debug(f"Saving input image to {temp_input}")
-            # Save input image to temporary file
-            with open(temp_input, 'wb') as f:
+            logger.debug(f"Saving input image to {input_path}")
+            with open(input_path, 'wb') as f:
                 f.write(image_data)
 
             logger.debug("Starting decode operation")
-            # Call decode with file path
-            message = decode(temp_input)
+            message = decode(input_path)
             logger.debug(f"Decoded message: '{message}'")
             logger.debug(f"Decoded message length: {len(message)}")
             logger.debug(f"Decoded message bytes: {[ord(c) for c in message]}")
-
+            logger.debug(f"Decoded binary: {' '.join(format(ord(c), '08b') for c in message)}")
+            
             return jsonify({'message': message})
 
     except Exception as e:
