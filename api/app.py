@@ -39,27 +39,40 @@ def encode_image():
             logger.error("Missing required fields")
             return jsonify({'error': 'Missing image or message'}), 400
 
+        # Decode base64 image
         image_data = base64.b64decode(data['image'].split(',')[1])
         message = data['message']
         
-        # Create a copy of the input image in memory
-        input_image = io.BytesIO(image_data)
-        output_image = io.BytesIO()
+        logger.debug(f"Message to encode: {message}")
         
-        logger.debug("Opening image with PIL")
-        img = Image.open(input_image)
-        img_copy = img.copy()  # Create a copy to work with
+        # Create input and output buffers
+        input_buffer = io.BytesIO(image_data)
+        output_buffer = io.BytesIO()
         
-        logger.debug(f"Image format: {img.format}, size: {img.size}, mode: {img.mode}")
-        logger.debug("Calling encode function")
+        # Open and process image
+        with Image.open(input_buffer) as img:
+            logger.debug(f"Image format: {img.format}, mode: {img.mode}")
+            # Convert to RGB if necessary
+            if img.mode != 'RGB':
+                img = img.convert('RGB')
+            # Create a copy to work with
+            img_copy = img.copy()
+            
+            try:
+                logger.debug("Calling encode function")
+                # Pass the image copy directly
+                encode(img_copy, output_buffer, message)
+                logger.debug("Encoding completed")
+            except Exception as e:
+                logger.error(f"Encoding error: {str(e)}")
+                raise
         
-        # Pass the image object directly, not as a path
-        encode(img_copy, output_image, message)
-        
-        output_image.seek(0)
-        encoded_image = base64.b64encode(output_image.getvalue()).decode()
+        # Prepare response
+        output_buffer.seek(0)
+        encoded_image = base64.b64encode(output_buffer.getvalue()).decode()
         
         return jsonify({'image': f'data:image/png;base64,{encoded_image}'})
+    
     except Exception as e:
         logger.exception("Error in encode_image:")
         return jsonify({'error': str(e)}), 400
