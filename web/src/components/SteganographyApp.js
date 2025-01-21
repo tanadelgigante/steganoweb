@@ -172,4 +172,4 @@ const SteganographyApp = () => {
   );
 };
 
-export default Steganography
+export default SteganographyApp
