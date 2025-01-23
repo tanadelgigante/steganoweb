@@ -3,9 +3,15 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies including Qt and X11 libs
 RUN apt-get update && apt-get install -y \
     python3-pip \
+    python3-pyqt6 \
+    libglib2.0-0 \
+    libgl1-mesa-glx \
+    libegl1-mesa \
+    libxkbcommon0 \
+    libdbus-1-3 \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install dependencies
