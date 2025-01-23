@@ -3,11 +3,9 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies including Qt
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     python3-pip \
-    python3-pyqt6 \
-    libgl1-mesa-glx \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install dependencies
@@ -17,6 +15,7 @@ RUN pip3 install -r requirements.txt
 # Copy application code
 COPY . .
 
+# Setup entrypoint
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
