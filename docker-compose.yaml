@@ -1,5 +1,3 @@
-env_file: .env
-
 services:
   web-app:
     build:
@@ -13,16 +11,17 @@ services:
       - ${VOLUME_BASE_PATH}/web:/app
       - /app/node_modules
       - ${HOSTS_CONFIG}:/etc/hosts.extra:ro
+    env_file: .env
     environment:
       - NODE_ENV=${NODE_ENV}
     depends_on:
       - api
     healthcheck:
       test: "wget --no-verbose --tries=1 --spider http://127.0.0.1:${PORT_UI_INTERNAL} || exit 1"
-      interval: ${HEALTHCHECK_INTERVAL}
-      timeout: ${HEALTHCHECK_TIMEOUT_UI}
+      interval: "${HEALTHCHECK_INTERVAL}s"
+      timeout: "${HEALTHCHECK_TIMEOUT_UI}s"
       retries: ${HEALTHCHECK_RETRIES}
-      start_period: ${HEALTHCHECK_START_PERIOD_UI}
+      start_period: "${HEALTHCHECK_START_PERIOD_UI}s"
 
   api:
     build:
@@ -36,6 +35,7 @@ services:
       - ${VOLUME_BASE_PATH}/api:/app
       - ${VOLUME_BASE_PATH}/main.py:/app/main.py
       - ${HOSTS_CONFIG}:/etc/hosts.extra:ro
+    env_file: .env
     environment:
       - FLASK_ENV=${FLASK_ENV}
       - FLASK_APP=app.py
@@ -47,7 +47,7 @@ services:
       - CORS_MAX_AGE=${CORS_MAX_AGE}
     healthcheck:
       test: "bash -c 'echo -n > /dev/tcp/127.0.0.1/${PORT_API_INTERNAL}'"
-      interval: ${HEALTHCHECK_INTERVAL}
-      timeout: ${HEALTHCHECK_TIMEOUT_API}
+      interval: "${HEALTHCHECK_INTERVAL}s"
+      timeout: "${HEALTHCHECK_TIMEOUT_API}s"
       retries: ${HEALTHCHECK_RETRIES}
-      start_period: ${HEALTHCHECK_START_PERIOD_API}
+      start_period: "${HEALTHCHECK_START_PERIOD_API}s"
