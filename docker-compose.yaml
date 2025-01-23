@@ -1,3 +1,5 @@
+env_file: .env
+
 services:
   web-app:
     build:
