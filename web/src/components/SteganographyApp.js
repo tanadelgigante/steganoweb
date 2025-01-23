@@ -47,8 +47,8 @@ const SteganographyApp = () => {
         const base64Image = reader.result;
         const endpoint = isEncoding ? '/encode' : '/decode';
         
-        // Use the correct API URL
-        const apiUrl = `${process.env.API_URL}${endpoint}`;
+        // Modifica qui per usare direttamente l'URL dell'API
+        const apiUrl = `${process.env.REACT_APP_API_URL || 'http://192.168.188.120:71'}${endpoint}`;
         console.log('Calling API at:', apiUrl);
         
         try {
