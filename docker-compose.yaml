@@ -3,26 +3,44 @@ services:
     build:
       context: ./web
       dockerfile: Dockerfile
+    container_name: steganoweb-ui
+    restart: always
     ports:
-      - "60:3000"
+      - "70:3000"
     volumes:
-      - ./web:/app
+      - /srv/steganoweb/web:/app
       - /app/node_modules
+      - ${HOSTS_CONFIG:-./config/hosts.conf}:/etc/hosts.extra:ro
     environment:
       - NODE_ENV=development
     depends_on:
       - api
+    healthcheck:
+      test: "wget --no-verbose --tries=1 --spider http://127.0.0.1:3000 || exit 1"
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
   api:
     build:
       context: ./api
       dockerfile: Dockerfile
+    container_name: steganoweb-api
     ports:
-      - "61:5000"
+      - "71:5000"
+    restart: always
     volumes:
-      - ./api:/app
-      - ./main.py:/app/main.py  # Mount main.py directly
+      - /srv/steganoweb/api:/app
+      - /srv/steganoweb/main.py:/app/main.py  # Mount main.py directly
+      - ${HOSTS_CONFIG:-./config/hosts.conf}:/etc/hosts.extra:ro
     environment:
       - FLASK_ENV=development
       - FLASK_APP=app.py
       - MAIN_PY_PATH=/app/main.py
+    healthcheck:
+      test: "bash -c 'echo -n > /dev/tcp/127.0.0.1/5000'"
+      interval: 1m30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
