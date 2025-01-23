@@ -17,15 +17,21 @@ sys.path.append(os.path.dirname(os.getenv('MAIN_PY_PATH', '/app/main.py')))
 from main import encode, decode
 
 app = Flask(__name__)
-# Configure CORS to accept requests from both external and internal addresses
+
+# Get CORS settings from environment
+cors_origins = os.getenv('CORS_ORIGINS', '*').split(',')
+cors_methods = os.getenv('CORS_METHODS', 'GET,POST,OPTIONS').split(',')
+cors_headers = os.getenv('CORS_HEADERS', 'Content-Type').split(',')
+cors_credentials = os.getenv('CORS_CREDENTIALS', 'true').lower() == 'true'
+cors_max_age = int(os.getenv('CORS_MAX_AGE', 3600))
+
 CORS(app, resources={
     r"/*": {
-        "origins": [
-            "http://web-app:3000",  # Usa il nome del container
-            "http://192.168.188.120:60"  # Indirizzo IP
-        ],
-        "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type"]
+        "origins": cors_origins,
+        "methods": cors_methods,
+        "allow_headers": cors_headers,
+        "supports_credentials": cors_credentials,
+        "max_age": cors_max_age
     }
 })
 

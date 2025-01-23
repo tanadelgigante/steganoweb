@@ -41,59 +41,52 @@ const SteganographyApp = () => {
   // Handle encode/decode operations
   const handleOperation = async () => {
     console.log('Starting operation:', isEncoding ? 'encode' : 'decode');
-    console.log('Input image:', inputImage);
-    console.log('Message:', message);
-
-    if (!inputImage) {
-      setStatus('Please select an image first');
-      return;
-    }
-
-    if (isEncoding && !message) {
-      setStatus('Please enter a message to encode');
-      return;
-    }
-
     try {
       const reader = new FileReader();
       reader.onloadend = async () => {
         const base64Image = reader.result;
-        console.log('Base64 image length:', base64Image.length);
-        console.log('First 100 chars of base64:', base64Image.substring(0, 100));
-
         const endpoint = isEncoding ? '/encode' : '/decode';
-        console.log('Sending request to:', endpoint);
-
-        const requestBody = {
-          image: base64Image,
-          message: isEncoding ? message : undefined,
-        };
-        console.log('Request body:', JSON.stringify(requestBody).substring(0, 100) + '...');
-
-        const response = await fetch(`http://192.168.188.120:61${endpoint}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(requestBody),
-        });
-
-        console.log('Response status:', response.status);
-        const data = await response.json();
-        console.log('Response data:', data);
         
-        if (data.error) {
-          setStatus(`Error: ${data.error}`);
-          return;
-        }
+        // Use the correct API URL
+        const apiUrl = `https://stega.toki.local:71${endpoint}`;
+        console.log('Calling API at:', apiUrl);
+        
+        try {
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',  // Add this line for CORS credentials
+            body: JSON.stringify({
+              image: base64Image,
+              message: isEncoding ? message : undefined,
+            }),
+          });
 
-        if (isEncoding) {
-          setProcessedImage(data.image);
-          setPreviewUrl(data.image);
-          setStatus('Message encoded successfully!');
-        } else {
-          setMessage(data.message);
-          setStatus('Message decoded successfully!');
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          const data = await response.json();
+          console.log('Response data:', data);
+        
+          if (data.error) {
+            setStatus(`Error: ${data.error}`);
+            return;
+          }
+  
+          if (isEncoding) {
+            setProcessedImage(data.image);
+            setPreviewUrl(data.image);
+            setStatus('Message encoded successfully!');
+          } else {
+            setMessage(data.message);
+            setStatus('Message decoded successfully!');
+          }
+        } catch (error) {
+          console.error('API call failed:', error);
+          setStatus(`Error calling API: ${error.message}`);
         }
       };
       
