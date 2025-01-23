@@ -48,7 +48,7 @@ const SteganographyApp = () => {
         const endpoint = isEncoding ? '/encode' : '/decode';
         
         // Use the correct API URL
-        const apiUrl = `http://api:5000${endpoint}`;
+        const apiUrl = `${process.env.API_URL}${endpoint}`;
         console.log('Calling API at:', apiUrl);
         
         try {
