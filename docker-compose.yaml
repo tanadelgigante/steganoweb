@@ -3,44 +3,49 @@ services:
     build:
       context: ./web
       dockerfile: Dockerfile
-    container_name: steganoweb-ui
+    container_name: ${CONTAINER_UI_NAME}
     restart: always
     ports:
-      - "70:3000"
+      - "${PORT_UI}:${PORT_UI_INTERNAL}"
     volumes:
-      - /srv/steganoweb/web:/app
+      - ${VOLUME_BASE_PATH}/web:/app
       - /app/node_modules
-      - ${HOSTS_CONFIG:-./config/hosts.conf}:/etc/hosts.extra:ro
+      - ${HOSTS_CONFIG}:/etc/hosts.extra:ro
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=${NODE_ENV}
     depends_on:
       - api
     healthcheck:
-      test: "wget --no-verbose --tries=1 --spider http://127.0.0.1:3000 || exit 1"
-      interval: 1m30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
+      test: "wget --no-verbose --tries=1 --spider http://127.0.0.1:${PORT_UI_INTERNAL} || exit 1"
+      interval: ${HEALTHCHECK_INTERVAL}
+      timeout: ${HEALTHCHECK_TIMEOUT_UI}
+      retries: ${HEALTHCHECK_RETRIES}
+      start_period: ${HEALTHCHECK_START_PERIOD_UI}
 
   api:
     build:
       context: ./api
       dockerfile: Dockerfile
-    container_name: steganoweb-api
+    container_name: ${CONTAINER_API_NAME}
     ports:
-      - "71:5000"
+      - "${PORT_API}:${PORT_API_INTERNAL}"
     restart: always
     volumes:
-      - /srv/steganoweb/api:/app
-      - /srv/steganoweb/main.py:/app/main.py  # Mount main.py directly
-      - ${HOSTS_CONFIG:-./config/hosts.conf}:/etc/hosts.extra:ro
+      - ${VOLUME_BASE_PATH}/api:/app
+      - ${VOLUME_BASE_PATH}/main.py:/app/main.py
+      - ${HOSTS_CONFIG}:/etc/hosts.extra:ro
     environment:
-      - FLASK_ENV=development
+      - FLASK_ENV=${FLASK_ENV}
       - FLASK_APP=app.py
       - MAIN_PY_PATH=/app/main.py
+      - CORS_ORIGINS=${CORS_ORIGINS}
+      - CORS_METHODS=${CORS_METHODS}
+      - CORS_HEADERS=${CORS_HEADERS}
+      - CORS_CREDENTIALS=${CORS_CREDENTIALS}
+      - CORS_MAX_AGE=${CORS_MAX_AGE}
     healthcheck:
-      test: "bash -c 'echo -n > /dev/tcp/127.0.0.1/5000'"
-      interval: 1m30s
-      timeout: 5s
-      retries: 3
-      start_period: 5s
+      test: "bash -c 'echo -n > /dev/tcp/127.0.0.1/${PORT_API_INTERNAL}'"
+      interval: ${HEALTHCHECK_INTERVAL}
+      timeout: ${HEALTHCHECK_TIMEOUT_API}
+      retries: ${HEALTHCHECK_RETRIES}
+      start_period: ${HEALTHCHECK_START_PERIOD_API}
