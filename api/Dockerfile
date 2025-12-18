@@ -8,8 +8,8 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     python3-pyqt6 \
     libglib2.0-0 \
-    libgl1-mesa-glx \
-    libegl1-mesa \
+    libgl1 \
+    libegl1 \
     libxkbcommon0 \
     libdbus-1-3 \
     && rm -rf /var/lib/apt/lists/*
